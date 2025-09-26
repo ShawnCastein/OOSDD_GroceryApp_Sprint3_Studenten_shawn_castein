@@ -86,5 +86,28 @@ namespace Grocery.App.ViewModels
             }
         }
 
+        [ObservableProperty]
+        string searchText;
+        // connect search bar van GroceryListItemView.xaml
+        partial void OnSearchTextChanged(string value)
+        {
+            IEnumerable<Product> filtered;
+            List<Product> products = _productService.GetAll();
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                // Show all available products
+                filtered = products.Where(p => p.Stock > 0 && MyGroceryListItems.All(g => g.ProductId != p.Id));
+            }
+            else
+            {
+                    filtered = products
+                    .Where(p => p.Name.Contains(value, StringComparison.OrdinalIgnoreCase) && p.Stock > 0 && MyGroceryListItems.All(g => g.ProductId != p.Id))
+                    .ToList();
+                
+            }
+            AvailableProducts.Clear();
+            foreach (var p in filtered)
+                AvailableProducts.Add(p);
+        }   
     }
 }
